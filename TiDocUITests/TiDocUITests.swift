@@ -1,13 +1,13 @@
 //
-//  TiDocBridgeUITests.swift
-//  TiDocBridgeUITests
+//  TiDocUITests.swift
+//  TiDocUITests
 //
 //  Created by Marie Rigal on 21/09/2026.
 //
 
 import XCTest
 
-final class TiDocBridgeUITests: XCTestCase {
+final class TiDocUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

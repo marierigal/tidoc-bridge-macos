@@ -30,25 +30,25 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0C9C41CF306139A5008ED77D /* TiDocBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TiDocBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C9C41DC306139A6008ED77D /* TiDocBridgeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TiDocBridgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C9C41E6306139A6008ED77D /* TiDocBridgeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TiDocBridgeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C9C41CF306139A5008ED77D /* TiDoc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TiDoc.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C9C41DC306139A6008ED77D /* TiDocTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TiDocTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C9C41E6306139A6008ED77D /* TiDocUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TiDocUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		0C9C41D1306139A5008ED77D /* TiDocBridge */ = {
+		0C9C41D1306139A5008ED77D /* TiDoc */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = TiDocBridge;
+			path = TiDoc;
 			sourceTree = "<group>";
 		};
-		0C9C41DF306139A6008ED77D /* TiDocBridgeTests */ = {
+		0C9C41DF306139A6008ED77D /* TiDocTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = TiDocBridgeTests;
+			path = TiDocTests;
 			sourceTree = "<group>";
 		};
-		0C9C41E9306139A6008ED77D /* TiDocBridgeUITests */ = {
+		0C9C41E9306139A6008ED77D /* TiDocUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = TiDocBridgeUITests;
+			path = TiDocUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -78,9 +78,9 @@
 		0C9C41C6306139A5008ED77D = {
 			isa = PBXGroup;
 			children = (
-				0C9C41D1306139A5008ED77D /* TiDocBridge */,
-				0C9C41DF306139A6008ED77D /* TiDocBridgeTests */,
-				0C9C41E9306139A6008ED77D /* TiDocBridgeUITests */,
+				0C9C41D1306139A5008ED77D /* TiDoc */,
+				0C9C41DF306139A6008ED77D /* TiDocTests */,
+				0C9C41E9306139A6008ED77D /* TiDocUITests */,
 				0C9C41D0306139A5008ED77D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,9 +88,9 @@
 		0C9C41D0306139A5008ED77D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0C9C41CF306139A5008ED77D /* TiDocBridge.app */,
-				0C9C41DC306139A6008ED77D /* TiDocBridgeTests.xctest */,
-				0C9C41E6306139A6008ED77D /* TiDocBridgeUITests.xctest */,
+				0C9C41CF306139A5008ED77D /* TiDoc.app */,
+				0C9C41DC306139A6008ED77D /* TiDocTests.xctest */,
+				0C9C41E6306139A6008ED77D /* TiDocUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -98,9 +98,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0C9C41CE306139A5008ED77D /* TiDocBridge */ = {
+		0C9C41CE306139A5008ED77D /* TiDoc */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0C9C41EE306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDocBridge" */;
+			buildConfigurationList = 0C9C41EE306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDoc" */;
 			buildPhases = (
 				0C9C41CB306139A5008ED77D /* Sources */,
 				0C9C41CC306139A5008ED77D /* Frameworks */,
@@ -109,20 +109,20 @@
 			buildRules = (
 			);
 			fileSystemSynchronizedGroups = (
-				0C9C41D1306139A5008ED77D /* TiDocBridge */,
+				0C9C41D1306139A5008ED77D /* TiDoc */,
 			);
-			name = TiDocBridge;
+			name = TiDoc;
 			packageProductDependencies = (
 				0C9C41F830613B32008ED77D /* Vapor */,
 				0C9C42D730614BFD008ED77D /* GRDB */,
 			);
 			productName = TiDocBridge;
-			productReference = 0C9C41CF306139A5008ED77D /* TiDocBridge.app */;
+			productReference = 0C9C41CF306139A5008ED77D /* TiDoc.app */;
 			productType = "com.apple.product-type.application";
 		};
-		0C9C41DB306139A6008ED77D /* TiDocBridgeTests */ = {
+		0C9C41DB306139A6008ED77D /* TiDocTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0C9C41F1306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDocBridgeTests" */;
+			buildConfigurationList = 0C9C41F1306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDocTests" */;
 			buildPhases = (
 				0C9C41D8306139A6008ED77D /* Sources */,
 				0C9C41D9306139A6008ED77D /* Frameworks */,
@@ -134,19 +134,19 @@
 				0C9C41DE306139A6008ED77D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				0C9C41DF306139A6008ED77D /* TiDocBridgeTests */,
+				0C9C41DF306139A6008ED77D /* TiDocTests */,
 			);
-			name = TiDocBridgeTests;
+			name = TiDocTests;
 			packageProductDependencies = (
 				0C9C41FA30613B32008ED77D /* VaporTesting */,
 			);
 			productName = TiDocBridgeTests;
-			productReference = 0C9C41DC306139A6008ED77D /* TiDocBridgeTests.xctest */;
+			productReference = 0C9C41DC306139A6008ED77D /* TiDocTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		0C9C41E5306139A6008ED77D /* TiDocBridgeUITests */ = {
+		0C9C41E5306139A6008ED77D /* TiDocUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0C9C41F4306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDocBridgeUITests" */;
+			buildConfigurationList = 0C9C41F4306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDocUITests" */;
 			buildPhases = (
 				0C9C41E2306139A6008ED77D /* Sources */,
 				0C9C41E3306139A6008ED77D /* Frameworks */,
@@ -158,11 +158,11 @@
 				0C9C41E8306139A6008ED77D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				0C9C41E9306139A6008ED77D /* TiDocBridgeUITests */,
+				0C9C41E9306139A6008ED77D /* TiDocUITests */,
 			);
-			name = TiDocBridgeUITests;
+			name = TiDocUITests;
 			productName = TiDocBridgeUITests;
-			productReference = 0C9C41E6306139A6008ED77D /* TiDocBridgeUITests.xctest */;
+			productReference = 0C9C41E6306139A6008ED77D /* TiDocUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -188,7 +188,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 0C9C41CA306139A5008ED77D /* Build configuration list for PBXProject "TiDocBridge" */;
+			buildConfigurationList = 0C9C41CA306139A5008ED77D /* Build configuration list for PBXProject "TiDoc" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -206,9 +206,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0C9C41CE306139A5008ED77D /* TiDocBridge */,
-				0C9C41DB306139A6008ED77D /* TiDocBridgeTests */,
-				0C9C41E5306139A6008ED77D /* TiDocBridgeUITests */,
+				0C9C41CE306139A5008ED77D /* TiDoc */,
+				0C9C41DB306139A6008ED77D /* TiDocTests */,
+				0C9C41E5306139A6008ED77D /* TiDocUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -252,18 +252,18 @@
 /* Begin PBXTargetDependency section */
 		0C9C41DE306139A6008ED77D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 0C9C41CE306139A5008ED77D /* TiDocBridge */;
+			target = 0C9C41CE306139A5008ED77D /* TiDoc */;
 			targetProxy = 0C9C41DD306139A6008ED77D /* PBXContainerItemProxy */;
 		};
 		0C9C41E8306139A6008ED77D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 0C9C41CE306139A5008ED77D /* TiDocBridge */;
+			target = 0C9C41CE306139A5008ED77D /* TiDoc */;
 			targetProxy = 0C9C41E7306139A6008ED77D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		0C9C41EC306139A6008ED77D /* Debug configuration for PBXProject "TiDocBridge" */ = {
+		0C9C41EC306139A6008ED77D /* Debug configuration for PBXProject "TiDoc" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -326,7 +326,7 @@
 			};
 			name = Debug;
 		};
-		0C9C41ED306139A6008ED77D /* Release configuration for PBXProject "TiDocBridge" */ = {
+		0C9C41ED306139A6008ED77D /* Release configuration for PBXProject "TiDoc" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -381,7 +381,7 @@
 			};
 			name = Release;
 		};
-		0C9C41EF306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDocBridge" */ = {
+		0C9C41EF306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDoc" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -400,7 +400,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dryauk.TiDocBridge;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dryauk.TiDoc;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -412,7 +412,7 @@
 			};
 			name = Debug;
 		};
-		0C9C41F0306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDocBridge" */ = {
+		0C9C41F0306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDoc" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -431,7 +431,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.dryauk.TiDocBridge;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dryauk.TiDoc;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -443,7 +443,7 @@
 			};
 			name = Release;
 		};
-		0C9C41F2306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDocBridgeTests" */ = {
+		0C9C41F2306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDocTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -459,11 +459,11 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TiDocBridge.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TiDocBridge";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TiDoc.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TiDoc";
 			};
 			name = Debug;
 		};
-		0C9C41F3306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDocBridgeTests" */ = {
+		0C9C41F3306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDocTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -479,11 +479,11 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TiDocBridge.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TiDocBridge";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TiDoc.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TiDoc";
 			};
 			name = Release;
 		};
-		0C9C41F5306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDocBridgeUITests" */ = {
+		0C9C41F5306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDocUITests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -501,7 +501,7 @@
 			};
 			name = Debug;
 		};
-		0C9C41F6306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDocBridgeUITests" */ = {
+		0C9C41F6306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDocUITests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -522,35 +522,35 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0C9C41CA306139A5008ED77D /* Build configuration list for PBXProject "TiDocBridge" */ = {
+		0C9C41CA306139A5008ED77D /* Build configuration list for PBXProject "TiDoc" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0C9C41EC306139A6008ED77D /* Debug configuration for PBXProject "TiDocBridge" */,
-				0C9C41ED306139A6008ED77D /* Release configuration for PBXProject "TiDocBridge" */,
+				0C9C41EC306139A6008ED77D /* Debug configuration for PBXProject "TiDoc" */,
+				0C9C41ED306139A6008ED77D /* Release configuration for PBXProject "TiDoc" */,
 			);
 			defaultConfigurationName = Release;
 		};
-		0C9C41EE306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDocBridge" */ = {
+		0C9C41EE306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDoc" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0C9C41EF306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDocBridge" */,
-				0C9C41F0306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDocBridge" */,
+				0C9C41EF306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDoc" */,
+				0C9C41F0306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDoc" */,
 			);
 			defaultConfigurationName = Release;
 		};
-		0C9C41F1306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDocBridgeTests" */ = {
+		0C9C41F1306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDocTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0C9C41F2306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDocBridgeTests" */,
-				0C9C41F3306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDocBridgeTests" */,
+				0C9C41F2306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDocTests" */,
+				0C9C41F3306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDocTests" */,
 			);
 			defaultConfigurationName = Release;
 		};
-		0C9C41F4306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDocBridgeUITests" */ = {
+		0C9C41F4306139A6008ED77D /* Build configuration list for PBXNativeTarget "TiDocUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0C9C41F5306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDocBridgeUITests" */,
-				0C9C41F6306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDocBridgeUITests" */,
+				0C9C41F5306139A6008ED77D /* Debug configuration for PBXNativeTarget "TiDocUITests" */,
+				0C9C41F6306139A6008ED77D /* Release configuration for PBXNativeTarget "TiDocUITests" */,
 			);
 			defaultConfigurationName = Release;
 		};

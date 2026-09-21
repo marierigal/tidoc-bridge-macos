@@ -1,6 +1,6 @@
 //
 //  MenuBarContentView.swift
-//  TiDocBridge
+//  TiDoc
 //
 //  Created by Marie Rigal on 21/09/2026.
 //
@@ -33,7 +33,7 @@ struct MenuBarContentView: View {
 
         Divider()
 
-        Button("Quitter TiDoc Bridge") {
+        Button("Quitter TiDoc") {
             Task {
                 await appState.quitter()
             }

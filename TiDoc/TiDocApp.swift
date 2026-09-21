@@ -1,6 +1,6 @@
 //
-//  TiDocBridgeApp.swift
-//  TiDocBridge
+//  TiDocApp.swift
+//  TiDoc
 //
 //  Created by Marie Rigal on 21/09/2026.
 //
@@ -8,11 +8,11 @@
 import SwiftUI
 
 @main
-struct TiDocBridgeApp: App {
+struct TiDocApp: App {
     @StateObject private var appState = AppState()
 
     var body: some Scene {
-        MenuBarExtra("TiDoc Bridge", systemImage: "link.circle") {
+        MenuBarExtra("TiDoc", systemImage: "link.circle") {
             MenuBarContentView()
                 .environmentObject(appState)
         }

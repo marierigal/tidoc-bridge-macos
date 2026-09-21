@@ -1,6 +1,6 @@
 //
 //  ClientDTO.swift
-//  TiDocBridge
+//  TiDoc
 //
 //  Created by Marie Rigal on 21/09/2026.
 //

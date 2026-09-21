@@ -1,6 +1,6 @@
 //
 //  ClientImportService.swift
-//  TiDocBridge
+//  TiDoc
 //
 //  Created by Marie Rigal on 21/09/2026.
 //
@@ -28,7 +28,7 @@ final class ClientImportService {
             guard let url = resultat.url else {
                 // No export button was available: category is empty on the CRM side,
                 // clear any previously imported rows for it
-                try await dbQueue.write { db in
+                let _ = try await dbQueue.write { db in
                     try ClientRecord.filter(Column("category") == category).deleteAll(db)
                 }
                 continue
@@ -40,7 +40,7 @@ final class ClientImportService {
 
             try await dbQueue.write { db in
                 try ClientRecord.filter(Column("category") == category).deleteAll(db)
-                for var record in records {
+                for record in records {
                     try record.insert(db)
                 }
             }
