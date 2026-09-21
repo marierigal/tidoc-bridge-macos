@@ -21,6 +21,7 @@ struct ClientRecord: Codable, FetchableRecord, PersistableRecord {
     var lastName: String?
     var email: String?
     var phone: String?
+    var phone2: String?
     var address: String?
     var cp: String?
     var city: String?
@@ -38,6 +39,7 @@ struct ClientRecord: Codable, FetchableRecord, PersistableRecord {
             lastName: lastName,
             email: email,
             phone: phone,
+            phone2: phone2,
             address: address,
             cp: cp,
             city: city,

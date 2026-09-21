@@ -34,6 +34,7 @@ enum DatabaseManager {
                 t.column("lastName", .text)
                 t.column("email", .text)
                 t.column("phone", .text)
+                t.column("phone2", .text)
                 t.column("address", .text)
                 t.column("cp", .text)
                 t.column("city", .text)

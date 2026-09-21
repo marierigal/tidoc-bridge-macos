@@ -51,6 +51,7 @@ struct InMemoryClientRepository: ClientRepository {
             lastName: nil,
             email: "contact@acme.fr",
             phone: "0102030405",
+            phone2: nil,
             address: "12 rue des Lilas",
             cp: "69000",
             city: "Lyon",

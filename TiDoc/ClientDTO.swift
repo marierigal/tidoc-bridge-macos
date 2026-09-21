@@ -22,6 +22,7 @@ struct ClientDTO: Content {
     let lastName: String?
     let email: String?
     let phone: String?
+    let phone2: String?
     let address: String?
     let cp: String?
     let city: String?

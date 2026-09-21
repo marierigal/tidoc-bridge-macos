@@ -26,7 +26,7 @@ enum CSVParsingError: LocalizedError {
 }
 
 enum CSVClientParser {
-    private static let expectedColumnCount = 13
+    private static let expectedColumnCount = 14
 
     static func parse(fileURL: URL, category: String) throws -> [ClientRecord] {
         var content = try String(contentsOf: fileURL, encoding: .utf8)
@@ -77,11 +77,12 @@ enum CSVClientParser {
             lastName: field(5),
             email: field(6),
             phone: field(7),
-            address: field(8),
-            cp: field(9),
-            city: field(10),
-            note: field(11),
-            accountantId: field(12),
+            phone2: field(8),
+            address: field(9),
+            cp: field(10),
+            city: field(11),
+            note: field(12),
+            accountantId: field(13),
             updatedAt: Date()
         )
     }
