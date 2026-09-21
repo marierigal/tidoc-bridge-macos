@@ -11,13 +11,7 @@ import Foundation
 
 enum DatabaseManager {
     static let shared: DatabaseQueue = {
-        let folder = FileManager.default
-            .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("TiDoc", isDirectory: true)
-
-        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-
-        let dbPath = folder.appendingPathComponent("tidoc.sqlite").path
+        let dbPath = AppPaths.databaseFolder.appendingPathComponent("tidoc.sqlite").path
 
         do {
             let dbQueue = try DatabaseQueue(path: dbPath)

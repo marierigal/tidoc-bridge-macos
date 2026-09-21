@@ -1,5 +1,5 @@
 //
-//  ClientTypeDTO.swift
+//  ClientDTO.swift
 //  TiDocBridge
 //
 //  Created by Marie Rigal on 21/09/2026.
