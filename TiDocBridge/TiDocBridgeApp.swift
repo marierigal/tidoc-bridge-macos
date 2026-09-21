@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct TiDocBridgeApp: App {
+    @StateObject private var appState = AppState()
+
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        MenuBarExtra("TiDoc Bridge", systemImage: "link.circle") {
+            MenuBarContentView()
+                .environmentObject(appState)
         }
+        .menuBarExtraStyle(.menu)
     }
 }
