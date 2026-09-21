@@ -18,6 +18,11 @@ struct MenuBarContentView: View {
             Text("Aucune synchro effectuée")
         }
 
+        if let error = appState.syncError {
+            Text(error)
+                .foregroundStyle(.red)
+        }
+
         Divider()
 
         Button("Synchroniser maintenant") {

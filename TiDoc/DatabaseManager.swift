@@ -11,10 +11,8 @@ import Foundation
 
 enum DatabaseManager {
     static let shared: DatabaseQueue = {
-        let dbPath = AppPaths.databaseFolder.appendingPathComponent("tidoc.sqlite").path
-
         do {
-            let dbQueue = try DatabaseQueue(path: dbPath)
+            let dbQueue = try DatabaseQueue(path: AppPaths.databaseFile.path)
             try migrator.migrate(dbQueue)
             return dbQueue
         } catch {

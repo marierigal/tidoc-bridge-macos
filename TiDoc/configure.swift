@@ -12,8 +12,8 @@ import NIOSSL
 func configure(_ app: Application) throws {
     // TLS via mkcert-generated files (dev only — see note above about
     // distribution needing a different, automated cert flow)
-    let certPath = "/Users/\(NSUserName())/Library/Application Support/TiDoc/certs/localhost.pem"
-    let keyPath = "/Users/\(NSUserName())/Library/Application Support/TiDoc/certs/localhost-key.pem"
+    let certPath = AppPaths.certsFolder.appendingPathComponent("localhost.pem").path
+    let keyPath = AppPaths.certsFolder.appendingPathComponent("localhost-key.pem").path
 
     app.http.server.configuration.tlsConfiguration = .makeServerConfiguration(
         certificateChain: try NIOSSLCertificate.fromPEMFile(certPath).map { .certificate($0) },

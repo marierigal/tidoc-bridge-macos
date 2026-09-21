@@ -13,17 +13,21 @@ import Combine
 final class AppState: ObservableObject {
     @Published var lastSyncDate: Date?
     @Published var isSyncing = false
+    @Published var syncError: String?
 
-    private var vaporServer = VaporServer()
+    private let vaporServer = VaporServer()
+    private let syncManager: CRMSyncManager
+    private let importService: ClientImportService
     private var connexionWindow: NSWindow?
 
-    private let crmSyncManager = CRMSyncManager(dossierDestination: AppPaths.exportsFolder)
-    private lazy var importService = ClientImportService(
-        syncManager: crmSyncManager,
-        dbQueue: DatabaseManager.shared
-    )
-
     init() {
+        let exportsFolder = AppPaths.exportsFolder
+        self.syncManager = CRMSyncManager(dossierDestination: exportsFolder)
+        self.importService = ClientImportService(
+            syncManager: syncManager,
+            dbQueue: DatabaseManager.shared
+        )
+
         Task {
             await vaporServer.start()
         }
@@ -31,6 +35,7 @@ final class AppState: ObservableObject {
 
     func synchroniser() async {
         isSyncing = true
+        syncError = nil
         defer { isSyncing = false }
 
         do {
@@ -38,13 +43,24 @@ final class AppState: ObservableObject {
             lastSyncDate = Date()
         } catch {
             print("Sync failed: \(error)")
-            // TODO: afficher l'erreur à l'utilisateur (cohérent avec la stratégie
-            // "erreurs remontées à l'UI" qu'on avait adoptée côté add-in)
+            syncError = "La synchronisation a échoué : \(error.localizedDescription)"
         }
     }
 
     func ouvrirFenetreDeConnexion() {
-        // TODO: instancier CRMSyncManager et appeler fenetreDeConnexion()
+        let window = syncManager.fenetreDeConnexion()
+        connexionWindow = window
+        window.makeKeyAndOrderFront(nil)
+
+        Task {
+            do {
+                try await syncManager.attendreConnexionPuisChargerDashboard()
+                connexionWindow?.close()
+                connexionWindow = nil
+            } catch {
+                print("Connection wait failed: \(error)")
+            }
+        }
     }
 
     func quitter() async {
