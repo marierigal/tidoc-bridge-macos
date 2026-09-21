@@ -25,7 +25,7 @@ struct MenuBarContentView: View {
 
         Divider()
 
-        Button("Synchroniser maintenant") {
+        Button(appState.isSyncing ? "Synchronisation en cours..." : "Synchroniser maintenant") {
             Task {
                 await appState.synchroniser()
             }

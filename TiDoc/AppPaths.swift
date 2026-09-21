@@ -11,7 +11,7 @@ enum AppPaths {
     static let appSupportFolder: URL = {
         let folder = FileManager.default
             .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("TiDoc Bridge", isDirectory: true)
+            .appendingPathComponent("TiDoc", isDirectory: true)
 
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         return folder
