@@ -39,9 +39,7 @@ struct MenuBarContentView: View {
         Divider()
 
         Button("Quitter TiDoc") {
-            Task {
-                await appState.quitter()
-            }
+            appState.quitter()
         }
     }
 }

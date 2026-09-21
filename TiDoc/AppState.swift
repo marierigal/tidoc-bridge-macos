@@ -63,8 +63,12 @@ final class AppState: ObservableObject {
         }
     }
 
-    func quitter() async {
+    func arreterServeur() async {
         await vaporServer.stop()
+
+    }
+
+    func quitter() {
         NSApplication.shared.terminate(nil)
     }
 }
