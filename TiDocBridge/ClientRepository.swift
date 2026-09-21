@@ -6,6 +6,7 @@
 //
 
 
+import GRDB
 import Vapor
 
 protocol ClientRepository: Sendable {
@@ -13,7 +14,32 @@ protocol ClientRepository: Sendable {
     func search(query: String) async throws -> [ClientDTO]
 }
 
-/// Temporary in-memory implementation, until GRDB persistence is wired up.
+struct GRDBClientRepository: ClientRepository {
+    let dbQueue: DatabaseQueue
+
+    func getAll() async throws -> [ClientDTO] {
+        try await dbQueue.read { db in
+            try ClientRecord.fetchAll(db).map { $0.toDTO() }
+        }
+    }
+
+    func search(query: String) async throws -> [ClientDTO] {
+        let pattern = "%\(query)%"
+        return try await dbQueue.read { db in
+            try ClientRecord
+                .filter(
+                    Column("company").like(pattern) ||
+                    Column("lastName").like(pattern) ||
+                    Column("firstName").like(pattern) ||
+                    Column("reference").like(pattern)
+                )
+                .fetchAll(db)
+                .map { $0.toDTO() }
+        }
+    }
+}
+
+/// For testing
 struct InMemoryClientRepository: ClientRepository {
     let clients: [ClientDTO] = [
         ClientDTO(

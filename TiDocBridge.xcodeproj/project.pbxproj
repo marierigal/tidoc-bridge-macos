@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0C9C41F930613B32008ED77D /* Vapor in Frameworks */ = {isa = PBXBuildFile; productRef = 0C9C41F830613B32008ED77D /* Vapor */; };
 		0C9C41FB30613B32008ED77D /* VaporTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 0C9C41FA30613B32008ED77D /* VaporTesting */; };
+		0C9C42D830614BFD008ED77D /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 0C9C42D730614BFD008ED77D /* GRDB */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			files = (
 				0C9C41F930613B32008ED77D /* Vapor in Frameworks */,
+				0C9C42D830614BFD008ED77D /* GRDB in Frameworks */,
 			);
 		};
 		0C9C41D9306139A6008ED77D /* Frameworks */ = {
@@ -112,6 +114,7 @@
 			name = TiDocBridge;
 			packageProductDependencies = (
 				0C9C41F830613B32008ED77D /* Vapor */,
+				0C9C42D730614BFD008ED77D /* GRDB */,
 			);
 			productName = TiDocBridge;
 			productReference = 0C9C41CF306139A5008ED77D /* TiDocBridge.app */;
@@ -196,6 +199,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				0C9C41F730613B32008ED77D /* XCRemoteSwiftPackageReference "vapor" */,
+				0C9C42D630614BFD008ED77D /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0C9C41D0306139A5008ED77D /* Products */;
@@ -561,6 +565,14 @@
 				minimumVersion = 4.122.2;
 			};
 		};
+		0C9C42D630614BFD008ED77D /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -573,6 +585,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0C9C41F730613B32008ED77D /* XCRemoteSwiftPackageReference "vapor" */;
 			productName = VaporTesting;
+		};
+		0C9C42D730614BFD008ED77D /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0C9C42D630614BFD008ED77D /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -35,6 +35,6 @@ func configure(_ app: Application) throws {
     )
     app.middleware.use(CORSMiddleware(configuration: corsConfiguration), at: .beginning)
 
-    let repository = InMemoryClientRepository()
+    let repository = GRDBClientRepository(dbQueue: DatabaseManager.shared)
     try routes(app, repository: repository)
 }
