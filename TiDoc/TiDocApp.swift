@@ -13,7 +13,7 @@ struct TiDocApp: App {
     @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
 
     var body: some Scene {
-        MenuBarExtra("TiDoc", systemImage: "link.circle") {
+        MenuBarExtra("TiDoc", systemImage: "person.crop.circle.fill.badge.plus") {
             MenuBarContentView()
                 .environmentObject(appState)
                 .task {
