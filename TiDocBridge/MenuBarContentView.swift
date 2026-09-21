@@ -21,7 +21,9 @@ struct MenuBarContentView: View {
         Divider()
 
         Button("Synchroniser maintenant") {
-            Task { await appState.synchroniser() }
+            Task {
+                await appState.synchroniser()
+            }
         }
         .disabled(appState.isSyncing)
 
@@ -32,7 +34,9 @@ struct MenuBarContentView: View {
         Divider()
 
         Button("Quitter TiDoc Bridge") {
-            NSApplication.shared.terminate(nil)
+            Task {
+                await appState.quitter()
+            }
         }
     }
 }
