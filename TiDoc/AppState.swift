@@ -15,6 +15,8 @@ final class AppState: ObservableObject {
     @Published var isSyncing = false
     @Published var syncError: String?
     @Published var isConnected = false
+    @Published var isAddInInstalled = AddInInstaller.isInstalled
+    @Published var addInError: String?
 
     private let vaporServer = VaporServer()
     private let syncManager: CRMSyncManager
@@ -83,5 +85,72 @@ final class AppState: ObservableObject {
 
     func quit() {
         NSApplication.shared.terminate(nil)
+    }
+
+    var hasFullDiskAccess: Bool {
+        let testFile = AddInInstaller.wefFolder.appendingPathComponent(".tidoc-access-test")
+
+        do {
+            try FileManager.default.createDirectory(at: AddInInstaller.wefFolder, withIntermediateDirectories: true)
+            try "test".write(to: testFile, atomically: true, encoding: .utf8)
+            try FileManager.default.removeItem(at: testFile)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    func openFullDiskAccessSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    func installAddIn() {
+        guard hasFullDiskAccess else {
+            addInError = "TiDoc a besoin de l'accès complet au disque pour installer le complément Word."
+            showFullDiskAccessAlert()
+            return
+        }
+
+        do {
+            try AddInInstaller.install()
+            isAddInInstalled = true
+            addInError = nil
+            showRestartWordAlert()
+        } catch {
+            addInError = "Installation impossible : \(error.localizedDescription)"
+        }
+    }
+
+    func uninstallAddIn() {
+        do {
+            try AddInInstaller.uninstall()
+            isAddInInstalled = false
+            addInError = nil
+            showRestartWordAlert()
+        } catch {
+            addInError = "Désinstallation impossible : \(error.localizedDescription)"
+        }
+    }
+
+    private func showRestartWordAlert() {
+        let alert = NSAlert()
+        alert.messageText = "Redémarrage de Word nécessaire"
+        alert.informativeText = "Fermez et rouvrez Word pour que le complément apparaisse."
+        alert.alertStyle = .informational
+        alert.runModal()
+    }
+
+    private func showFullDiskAccessAlert() {
+        let alert = NSAlert()
+        alert.messageText = "Autorisation nécessaire"
+        alert.informativeText = "Ouvrez Réglages Système, ajoutez TiDoc à la liste \"Accès complet au disque\", puis réessayez."
+        alert.addButton(withTitle: "Ouvrir Réglages Système")
+        alert.addButton(withTitle: "Annuler")
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            openFullDiskAccessSettings()
+        }
     }
 }

@@ -44,6 +44,23 @@ struct MenuBarContentView: View {
 
         Divider()
 
+        if appState.isAddInInstalled {
+            Button("Désinstaller l'add-in Word") {
+                appState.uninstallAddIn()
+            }
+        } else {
+            Button("Installer l'add-in Word") {
+                appState.installAddIn()
+            }
+        }
+
+        if let addInError = appState.addInError {
+            Text(addInError)
+                .foregroundStyle(.red)
+        }
+
+        Divider()
+
         Button("Quitter TiDoc") {
             appState.quit()
         }
