@@ -45,6 +45,8 @@ final class ClientImportService {
                     try record.insert(db)
                 }
             }
+
+            try await MetadataStore.setLastSyncDate(Date())
         }
     }
 }

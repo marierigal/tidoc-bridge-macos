@@ -34,6 +34,10 @@ final class AppState: ObservableObject {
         Task {
             await vaporServer.start()
         }
+
+        Task {
+            await refreshLastSyncDate()
+        }
     }
 
     private static func makeExportsFolder() -> URL {
@@ -47,7 +51,7 @@ final class AppState: ObservableObject {
 
         do {
             try await importService.synchronizeAndImport()
-            lastSyncDate = Date()
+            await refreshLastSyncDate()
         } catch {
             if case CRMSyncError.sessionExpired = error {
                 isConnected = false // reflect reality: session was invalidated server-side
@@ -151,6 +155,14 @@ final class AppState: ObservableObject {
 
         if alert.runModal() == .alertFirstButtonReturn {
             openFullDiskAccessSettings()
+        }
+    }
+
+    private func refreshLastSyncDate() async {
+        do {
+            lastSyncDate = try await MetadataStore.getLastSyncDate()
+        } catch {
+            print("Failed to read last sync date: \(error)")
         }
     }
 }

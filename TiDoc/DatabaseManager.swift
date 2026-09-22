@@ -45,6 +45,13 @@ enum DatabaseManager {
             }
         }
 
+        migrator.registerMigration("createAppMetadata") { db in
+            try db.create(table: "app_metadata") { t in
+                t.column("key", .text).primaryKey()
+                t.column("value", .text).notNull()
+            }
+        }
+
         return migrator
     }
 }

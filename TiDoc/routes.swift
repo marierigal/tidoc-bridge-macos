@@ -21,4 +21,9 @@ func routes(_ app: Application, repository: ClientRepository) throws {
         }
         return try await repository.search(query: query)
     }
+
+    app.get("sync", "status") { req async throws -> SyncStatusDTO in
+        let lastSyncDate = try await MetadataStore.getLastSyncDate()
+        return SyncStatusDTO(lastSyncDate: lastSyncDate)
+    }
 }
