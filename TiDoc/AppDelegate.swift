@@ -15,7 +15,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let appState else { return .terminateNow }
 
         Task {
-            await appState.arreterServeur()
+            await appState.stopServer()
             NSApp.reply(toApplicationShouldTerminate: true)
         }
 

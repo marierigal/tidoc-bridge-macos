@@ -27,19 +27,25 @@ struct MenuBarContentView: View {
 
         Button(appState.isSyncing ? "Synchronisation en cours..." : "Synchroniser maintenant") {
             Task {
-                await appState.synchroniser()
+                await appState.synchronize()
             }
         }
         .disabled(appState.isSyncing)
 
-        Button("Se connecter au CRM") {
-            appState.ouvrirFenetreDeConnexion()
+        if appState.isConnected {
+            Button("Se déconnecter du CRM") {
+                Task { await appState.logOutFromCRM() }
+            }
+        } else {
+            Button("Se connecter au CRM") {
+                appState.openLoginWindow()
+            }
         }
 
         Divider()
 
         Button("Quitter TiDoc") {
-            appState.quitter()
+            appState.quit()
         }
     }
 }

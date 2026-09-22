@@ -8,52 +8,52 @@
 
 import WebKit
 
-// MARK: - Modèle
+// MARK: - Model
 
 enum CRMTab: String, CaseIterable {
     case client = "clients"
     case prospect = "prospects"
-    case fournisseur = "suppliers"
+    case supplier = "suppliers"
 
-    /// Nom de fichier suggéré pour l'export local
-    var nomFichier: String {
+    /// Suggested file name for the local export
+    var fileName: String {
         switch self {
         case .client: return "clients.csv"
         case .prospect: return "prospects.csv"
-        case .fournisseur: return "fournisseurs.csv"
+        case .supplier: return "suppliers.csv"
         }
     }
 }
 
-enum DocGenSyncError: LocalizedError {
-    case chargementEchoue(Error)
-    case ongletNonActif(CRMTab)
-    case exportEchoue(CRMTab)
-    case telechargementEchoue(CRMTab)
+enum CRMSyncError: LocalizedError {
+    case loadingFailed(Error)
+    case tabNotActive(CRMTab)
+    case exportFailed(CRMTab)
+    case downloadFailed(CRMTab)
     case timeout(String)
-    case sessionExpiree
+    case sessionExpired
 
     var errorDescription: String? {
         switch self {
-        case .chargementEchoue(let err):
+        case .loadingFailed(let err):
             return "Le chargement de la page CRM a échoué : \(err.localizedDescription)"
-        case .ongletNonActif(let tab):
+        case .tabNotActive(let tab):
             return "Impossible d'activer l'onglet \(tab.rawValue)."
-        case .exportEchoue(let tab):
+        case .exportFailed(let tab):
             return "L'export pour l'onglet \(tab.rawValue) a échoué."
-        case .telechargementEchoue(let tab):
+        case .downloadFailed(let tab):
             return "Le téléchargement du fichier pour \(tab.rawValue) a échoué."
-        case .timeout(let contexte):
-            return "Délai dépassé : \(contexte)"
-        case .sessionExpiree:
+        case .timeout(let context):
+            return "Délai dépassé : \(context)"
+        case .sessionExpired:
             return "La session n'est plus valide, une reconnexion manuelle est nécessaire."
         }
     }
 }
 
-/// Résultat de la synchronisation pour une catégorie donnée.
-/// `url` est nil si la catégorie n'avait aucun enregistrement (bouton Exporter absent).
-struct ResultatSyncCategorie {
+/// Result of the synchronization for a given category.
+/// `url` is nil if the category had no records (no Export button present).
+struct SyncCategoryResult {
     let tab: CRMTab
     let url: URL?
 }
@@ -63,28 +63,33 @@ struct ResultatSyncCategorie {
 @MainActor
 final class CRMSyncManager: NSObject {
 
-    private let urlDashboard = URL(string: "https://app.inter-fast.fr/dashboard/crm")!
-    private let dossierDestination: URL
+    private let dashboardURL = URL(string: "https://app.inter-fast.fr/dashboard/crm")!
+    private let destinationFolder: URL
 
-    /// Fragment d'URL identifiant la page de connexion. À ajuster selon l'URL réelle
-    /// (ex: "/login", "/auth/signin"...).
-    private let motifPageLogin = "/login"
+    /// URL fragment identifying the login page. Adjust to match the real URL
+    /// (e.g. "/login", "/auth/signin"...).
+    private let loginPagePattern = "/login"
 
     private var webView: WKWebView!
 
-    // Chargement de page
+    // Page loading
     private var navigationContinuation: CheckedContinuation<Void, Error>?
 
-    // Téléchargement en cours
+    // Ongoing download
     private var downloadContinuation: CheckedContinuation<URL, Error>?
     private var downloadDestinationURL: URL?
 
-    init(dossierDestination: URL) {
-        self.dossierDestination = dossierDestination
+    // Login window is created once and reused — recreating an NSWindow on
+    // every call while reassigning the same WKWebView as its contentView
+    // causes a memory crash (over-release) when the previous window closes.
+    private var loginWindowCache: NSWindow?
+
+    init(destinationFolder: URL) {
+        self.destinationFolder = destinationFolder
         super.init()
 
-        // WKWebsiteDataStore.default() persiste automatiquement les cookies
-        // entre les lancements de l'app : pas besoin de gérer la session nous-même.
+        // WKWebsiteDataStore.default() automatically persists cookies across
+        // app launches: no need to manage the session ourselves.
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
 
@@ -92,10 +97,15 @@ final class CRMSyncManager: NSObject {
         webView.navigationDelegate = self
     }
 
-    // MARK: API publique
+    // MARK: Public API
 
-    /// Affiche la webview dans une fenêtre visible, pour une connexion manuelle initiale.
-    func fenetreDeConnexion() -> NSWindow {
+    /// Shows the webview in a visible window, for an initial manual login.
+    func loginWindow() -> NSWindow {
+        if let existingWindow = loginWindowCache {
+            webView.load(URLRequest(url: dashboardURL))
+            return existingWindow
+        }
+
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 1000, height: 720),
             styleMask: [.titled, .closable, .resizable],
@@ -104,87 +114,110 @@ final class CRMSyncManager: NSObject {
         )
         window.title = "Connexion à l'application CRM"
         window.contentView = webView
-        webView.load(URLRequest(url: urlDashboard))
+        window.isReleasedWhenClosed = false // extra safety, even while cached
+        webView.load(URLRequest(url: dashboardURL))
+
+        loginWindowCache = window
         return window
     }
 
-    /// Lance la synchronisation des catégories demandées, dans l'ordre séquentiel
-    /// (une seule WKWebView, navigation par onglets sans reload).
-    func synchroniser(
+    /// Clears the CRM session data (cookies), forcing a manual reconnection
+    /// on the next access.
+    func logOut() async {
+        let dataStore = WKWebsiteDataStore.default()
+        let types = WKWebsiteDataStore.allWebsiteDataTypes()
+
+        let records = await dataStore.dataRecords(ofTypes: types)
+        let crmRecords = records.filter { $0.displayName.contains("inter-fast.fr") }
+
+        await dataStore.removeData(ofTypes: types, for: crmRecords)
+    }
+
+    /// Runs the synchronization for the requested categories, sequentially
+    /// (a single WKWebView, tab navigation without reload).
+    func synchronize(
         categories: [CRMTab] = CRMTab.allCases
-    ) async throws -> [ResultatSyncCategorie] {
+    ) async throws -> [SyncCategoryResult] {
 
-        try await chargerPageInitiale()
+        try await loadInitialPage()
 
-        var resultats: [ResultatSyncCategorie] = []
+        var results: [SyncCategoryResult] = []
 
         for tab in categories {
-            try await activerOnglet(tab)
+            try await activateTab(tab)
 
-            guard try await boutonExporterDisponible() else {
-                resultats.append(ResultatSyncCategorie(tab: tab, url: nil))
+            guard try await exportButtonAvailable() else {
+                results.append(SyncCategoryResult(tab: tab, url: nil))
                 continue
             }
 
-            try await lancerExport(pour: tab)
-            // Le traitement le plus récent est toujours inséré en tête de liste
-            // (index 0), quel que soit le nombre de traitements déjà présents.
-            let fichier = try await recupererTelechargement(pour: tab, indexLigne: 0)
-            resultats.append(ResultatSyncCategorie(tab: tab, url: fichier))
+            try await startExport(for: tab)
+            // The most recent job is always inserted at the head of the list
+            // (index 0), regardless of how many jobs are already present.
+            let file = try await retrieveDownload(for: tab, rowIndex: 0)
+            results.append(SyncCategoryResult(tab: tab, url: file))
         }
 
-        return resultats
+        return results
     }
 
-    // MARK: Chargement de page
+    // MARK: Page loading
 
-    /// Charge le dashboard CRM et vérifie qu'on n'a pas été redirigé vers le login
-    /// (session expirée). Si c'est le cas, lève `.sessionExpiree` plutôt que de
-    /// continuer à cliquer sur des éléments qui n'existent pas sur cette page.
-    private func chargerPageInitiale() async throws {
-        try await naviguer(vers: urlDashboard)
+    /// Loads the CRM dashboard and checks we weren't redirected to the login
+    /// page (expired session). If so, throws `.sessionExpired` rather than
+    /// continuing to click on elements that don't exist on that page.
+    private func loadInitialPage() async throws {
+        try await navigate(to: dashboardURL)
 
-        if let url = webView.url, url.absoluteString.contains(motifPageLogin) {
-            throw DocGenSyncError.sessionExpiree
+        if let url = webView.url, url.absoluteString.contains(loginPagePattern) {
+            throw CRMSyncError.sessionExpired
         }
     }
 
-    private func naviguer(vers url: URL) async throws {
+    private func navigate(to url: URL) async throws {
+        // If a previous navigation is still pending (e.g. a redundant load
+        // request to a URL that's already loading), resolve it explicitly
+        // instead of risking leaving it dangling — which would crash with a
+        // "leaked continuation" error.
+        navigationContinuation?.resume(throwing: CRMSyncError.timeout("navigation supplantée par une nouvelle demande"))
+        navigationContinuation = nil
+
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             self.navigationContinuation = continuation
             webView.load(URLRequest(url: url))
         }
     }
 
-    /// À utiliser après avoir affiché `fenetreDeConnexion()` : attend que l'utilisateur
-    /// quitte manuellement la page de login (identifiants saisis avec succès), puis
-    /// force la navigation vers le dashboard CRM (le site ne le fait pas automatiquement).
-    func attendreConnexionPuisChargerDashboard(timeout: TimeInterval = 300) async throws {
+    /// To be used after showing `loginWindow()`: waits until the user
+    /// manually leaves the login page (credentials entered successfully),
+    /// then forces navigation to the CRM dashboard (the site doesn't do it
+    /// automatically).
+    func waitForLoginThenLoadDashboard(timeout: TimeInterval = 300) async throws {
         let deadline = Date().addingTimeInterval(timeout)
 
-        // 1. Attendre qu'on ne soit plus sur la page de login, avec un court délai
-        //    de stabilisation pour éviter de réagir à une redirection transitoire.
+        // 1. Wait until we're no longer on the login page, with a short
+        //    stabilization delay to avoid reacting to a transient redirect.
         while Date() < deadline {
-            if let url = webView.url, !url.absoluteString.contains(motifPageLogin) {
-                try await Task.sleep(nanoseconds: 1_000_000_000)  // 1s de stabilisation
-                if let urlConfirmee = webView.url, !urlConfirmee.absoluteString.contains(motifPageLogin) {
+            if let url = webView.url, !url.absoluteString.contains(loginPagePattern) {
+                try await Task.sleep(nanoseconds: 1_000_000_000)  // 1s stabilization
+                if let confirmedURL = webView.url, !confirmedURL.absoluteString.contains(loginPagePattern) {
                     break
                 }
             }
             try await Task.sleep(nanoseconds: 500_000_000)
         }
 
-        guard let url = webView.url, !url.absoluteString.contains(motifPageLogin) else {
-            throw DocGenSyncError.timeout("connexion manuelle non détectée dans le délai imparti")
+        guard let url = webView.url, !url.absoluteString.contains(loginPagePattern) else {
+           throw CRMSyncError.timeout("connexion manuelle non détectée dans le délai imparti")
         }
 
-        // 2. Le site ne redirige pas vers /dashboard/crm après connexion : on le fait nous-mêmes.
-        try await chargerPageInitiale()
+        // 2. The site doesn't redirect to /dashboard/crm after login: we do it ourselves.
+        try await loadInitialPage()
     }
 
-    // MARK: Navigation par onglets (sans reload, cf. structure SPA de l'appli)
+    // MARK: Tab navigation (no reload, since the app is a SPA)
 
-    private func activerOnglet(_ tab: CRMTab) async throws {
+    private func activateTab(_ tab: CRMTab) async throws {
         let jsClick = "document.getElementById('flex-tabs-tab-\(tab.rawValue)')?.click();"
         _ = try? await webView.evaluateJavaScript(jsClick)
 
@@ -192,24 +225,24 @@ final class CRMSyncManager: NSObject {
         let jsCheck = "document.getElementById('flex-tabs-tab-\(tab.rawValue)')?.getAttribute('aria-selected') === 'true'"
 
         while Date() < deadline {
-            if let actif = try? await webView.evaluateJavaScript(jsCheck) as? Bool, actif {
-                // Court délai de stabilisation : laisse le temps au contenu
-                // de l'onglet de finir de se charger après le changement
+            if let active = try? await webView.evaluateJavaScript(jsCheck) as? Bool, active {
+                // Short stabilization delay: gives the tab's content time to
+                // finish loading after the switch
                 try await Task.sleep(nanoseconds: 400_000_000)
                 return
             }
             try await Task.sleep(nanoseconds: 150_000_000)
         }
-        throw DocGenSyncError.ongletNonActif(tab)
+        throw CRMSyncError.tabNotActive(tab)
     }
 
-    // MARK: Détection du bouton Exporter (absent si catégorie vide)
+    // MARK: Export button detection (absent if the category is empty)
 
-    /// Le contenu de l'onglet (liste + bouton Exporter) peut se charger un peu après
-    /// que l'onglet soit devenu actif (aria-selected), notamment s'il y a des données
-    /// à récupérer côté serveur. On poll donc sur une courte fenêtre plutôt que de
-    /// vérifier une seule fois, pour éviter de conclure à tort à une catégorie vide.
-    private func boutonExporterDisponible(timeoutSecondes: TimeInterval = 5) async throws -> Bool {
+    /// The tab's content (list + Export button) may load a bit after the tab
+    /// becomes active (aria-selected), especially if there's data to fetch
+    /// from the server. We therefore poll over a short window rather than
+    /// checking only once, to avoid wrongly concluding the category is empty.
+    private func exportButtonAvailable(timeoutSeconds: TimeInterval = 5) async throws -> Bool {
         let js = """
         (() => {
             const btn = Array.from(document.querySelectorAll('button'))
@@ -218,7 +251,7 @@ final class CRMSyncManager: NSObject {
         })()
         """
 
-        let deadline = Date().addingTimeInterval(timeoutSecondes)
+        let deadline = Date().addingTimeInterval(timeoutSeconds)
         while Date() < deadline {
             if let present = try? await webView.evaluateJavaScript(js) as? Bool, present {
                 return true
@@ -228,14 +261,14 @@ final class CRMSyncManager: NSObject {
         return false
     }
 
-    // MARK: Lancement de l'export + suivi de la ligne dans la modale des traitements
+    // MARK: Starting the export + tracking the row in the jobs modal
 
-    /// Clique sur "Exporter" et attend qu'une nouvelle ligne apparaisse dans la modale
-    /// (`.modal-body > div > div`). Les nouveaux traitements sont insérés en tête de
-    /// liste (index 0) : on ne cible donc jamais par position calculée, seulement en
-    /// confirmant qu'une ligne de plus est présente avant de lire l'index 0.
-    private func lancerExport(pour tab: CRMTab) async throws {
-        let countAvant = try await compterLignesModale()
+    /// Clicks "Exporter" and waits for a new row to appear in the modal
+    /// (`.modal-body > div > div`). New jobs are inserted at the head of the
+    /// list (index 0): we therefore never target by a computed position,
+    /// only after confirming one more row is present before reading index 0.
+    private func startExport(for tab: CRMTab) async throws {
+        let countBefore = try await countModalRows()
 
         let jsClick = """
         (() => {
@@ -245,34 +278,34 @@ final class CRMSyncManager: NSObject {
             return false;
         })()
         """
-        let clique = try await webView.evaluateJavaScript(jsClick) as? Bool ?? false
-        guard clique else { throw DocGenSyncError.exportEchoue(tab) }
+        let clicked = try await webView.evaluateJavaScript(jsClick) as? Bool ?? false
+        guard clicked else { throw CRMSyncError.exportFailed(tab) }
 
         let deadline = Date().addingTimeInterval(15)
         while Date() < deadline {
-            let count = try await compterLignesModale()
-            if count >= countAvant + 1 { return }
+            let count = try await countModalRows()
+            if count >= countBefore + 1 { return }
             try await Task.sleep(nanoseconds: 200_000_000)
         }
-        throw DocGenSyncError.timeout("nouvelle ligne de traitement non détectée pour \(tab.rawValue)")
+        throw CRMSyncError.timeout("nouvelle ligne de traitement non détectée pour \(tab.rawValue)")
     }
 
-    private func compterLignesModale() async throws -> Int {
+    private func countModalRows() async throws -> Int {
         let js = "document.querySelectorAll('.modal-body > div > div').length"
         let result = try await webView.evaluateJavaScript(js) as? Int
         return result ?? 0
     }
 
-    // MARK: Attente de fin de traitement + téléchargement
+    // MARK: Waiting for job completion + download
 
-    private func recupererTelechargement(pour tab: CRMTab, indexLigne: Int) async throws -> URL {
-        // Attendre que le bouton "Télécharger" apparaisse dans la ligne ciblée
-        // (le loader est remplacé par ce bouton une fois le job serveur terminé).
+    private func retrieveDownload(for tab: CRMTab, rowIndex: Int) async throws -> URL {
+        // Wait for the "Télécharger" button to appear in the targeted row
+        // (the loader is replaced by this button once the server job is done).
         let deadline = Date().addingTimeInterval(120)
-        let jsPresenceBouton = """
+        let jsButtonPresence = """
         (() => {
             const rows = document.querySelectorAll('.modal-body > div > div');
-            const row = rows[\(indexLigne)];
+            const row = rows[\(rowIndex)];
             if (!row) return false;
             const btn = Array.from(row.querySelectorAll('button'))
                 .find(b => b.textContent.trim() === 'Télécharger');
@@ -280,26 +313,26 @@ final class CRMSyncManager: NSObject {
         })()
         """
 
-        var pret = false
+        var ready = false
         while Date() < deadline {
-            if let ok = try? await webView.evaluateJavaScript(jsPresenceBouton) as? Bool, ok {
-                pret = true
+            if let ok = try? await webView.evaluateJavaScript(jsButtonPresence) as? Bool, ok {
+                ready = true
                 break
             }
             try await Task.sleep(nanoseconds: 500_000_000)
         }
-        guard pret else { throw DocGenSyncError.timeout("job d'export non terminé pour \(tab.rawValue)") }
+        guard ready else { throw CRMSyncError.timeout("job d'export non terminé pour \(tab.rawValue)") }
 
-        let destination = dossierDestination.appendingPathComponent(tab.nomFichier)
+        let destination = destinationFolder.appendingPathComponent(tab.fileName)
         downloadDestinationURL = destination
 
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<URL, Error>) in
             self.downloadContinuation = continuation
 
-            let jsClickTelecharger = """
+            let jsClickDownload = """
             (() => {
                 const rows = document.querySelectorAll('.modal-body > div > div');
-                const row = rows[\(indexLigne)];
+                const row = rows[\(rowIndex)];
                 if (!row) return false;
                 const btn = Array.from(row.querySelectorAll('button'))
                     .find(b => b.textContent.trim() === 'Télécharger');
@@ -308,10 +341,10 @@ final class CRMSyncManager: NSObject {
             })()
             """
             Task {
-                let clique = try? await self.webView.evaluateJavaScript(jsClickTelecharger) as? Bool
-                if clique != true {
+                let clicked = try? await self.webView.evaluateJavaScript(jsClickDownload) as? Bool
+                if clicked != true {
                     self.downloadContinuation = nil
-                    continuation.resume(throwing: DocGenSyncError.telechargementEchoue(tab))
+                    continuation.resume(throwing: CRMSyncError.downloadFailed(tab))
                 }
             }
         }
@@ -328,17 +361,17 @@ extension CRMSyncManager: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        navigationContinuation?.resume(throwing: DocGenSyncError.chargementEchoue(error))
+        navigationContinuation?.resume(throwing: CRMSyncError.loadingFailed(error))
         navigationContinuation = nil
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        navigationContinuation?.resume(throwing: DocGenSyncError.chargementEchoue(error))
+        navigationContinuation?.resume(throwing: CRMSyncError.loadingFailed(error))
         navigationContinuation = nil
     }
 
-    // Le clic sur "Télécharger" déclenche une réponse avec Content-Disposition,
-    // que WKWebView convertit en WKDownload plutôt qu'en navigation classique.
+    // Clicking "Télécharger" triggers a response with Content-Disposition,
+    // which WKWebView turns into a WKDownload rather than a normal navigation.
     func webView(
         _ webView: WKWebView,
         navigationAction: WKNavigationAction,
@@ -367,16 +400,16 @@ extension CRMSyncManager: WKDownloadDelegate {
         completionHandler: @escaping (URL?) -> Void
     ) {
         let destination = downloadDestinationURL
-            ?? dossierDestination.appendingPathComponent(suggestedFilename)
+            ?? destinationFolder.appendingPathComponent(suggestedFilename)
 
-        // Supprime un éventuel fichier existant du run précédent, sinon WKDownload échoue.
+        // Remove any leftover file from a previous run, otherwise WKDownload fails.
         try? FileManager.default.removeItem(at: destination)
         completionHandler(destination)
     }
 
     func downloadDidFinish(_ download: WKDownload) {
         guard let destination = downloadDestinationURL else {
-            downloadContinuation?.resume(throwing: DocGenSyncError.timeout("destination de téléchargement introuvable"))
+            downloadContinuation?.resume(throwing: CRMSyncError.timeout("destination de téléchargement introuvable"))
             downloadContinuation = nil
             return
         }

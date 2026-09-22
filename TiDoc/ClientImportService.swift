@@ -19,23 +19,24 @@ final class ClientImportService {
         self.dbQueue = dbQueue
     }
 
-    func synchroniserEtImporter(categories: [CRMTab] = CRMTab.allCases) async throws {
-        let resultats = try await syncManager.synchroniser(categories: categories)
+    func synchronizeAndImport(categories: [CRMTab] = CRMTab.allCases) async throws {
+        let results = try await syncManager.synchronize(categories: categories)
 
-        for resultat in resultats {
-            let category = resultat.tab.rawValue
+        for result in results {
+            let category = result.tab.rawValue
 
-            guard let url = resultat.url else {
-                // No export button was available: category is empty on the CRM side,
-                // clear any previously imported rows for it
-                let _ = try await dbQueue.write { db in
+            guard let url = result.url else {
+                // No export button was available: the category is empty on
+                // the CRM side, clear any previously imported rows for it
+                _ = try await dbQueue.write { db in
                     try ClientRecord.filter(Column("category") == category).deleteAll(db)
                 }
                 continue
             }
 
-            // Parsing happens BEFORE touching the database: if a line is malformed,
-            // this throws and the previous data for this category stays untouched
+            // Parsing happens BEFORE touching the database: if a line is
+            // malformed, this throws and the previous data for this category
+            // stays untouched
             let records = try CSVClientParser.parse(fileURL: url, category: category)
 
             try await dbQueue.write { db in
