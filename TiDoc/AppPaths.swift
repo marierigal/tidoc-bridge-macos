@@ -28,6 +28,8 @@ enum AppPaths {
     }()
 
     static let certsFolder: URL = {
-        appSupportFolder.appendingPathComponent("certs", isDirectory: true)
+        let folder = appSupportFolder.appendingPathComponent("certs", isDirectory: true)
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return folder
     }()
 }

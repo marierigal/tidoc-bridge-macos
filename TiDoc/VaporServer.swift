@@ -15,6 +15,13 @@ final class VaporServer {
     func start() async {
         guard app == nil else { return } // already running, avoid starting twice
 
+        do {
+            try CertificateService.ensureCertificateIsReadyAndTrusted()
+        } catch {
+            print("Certificate setup failed: \(error)")
+            return
+        }
+
         let environment = Environment(name: "development", arguments: ["vapor"])
 
         do {
