@@ -22,6 +22,9 @@ final class AppState: ObservableObject {
     private let syncManager: CRMSyncManager
     private let importService: ClientImportService
     private var activeLoginWindow: NSWindow?
+    private lazy var scheduler = SyncScheduler { [weak self] in
+        await self?.synchronize()
+    }
 
     init() {
         let exportsFolder = AppState.makeExportsFolder()
@@ -31,13 +34,11 @@ final class AppState: ObservableObject {
             dbQueue: DatabaseManager.shared
         )
 
-        Task {
-            await vaporServer.start()
-        }
+        Task {await vaporServer.start()}
 
-        Task {
-            await refreshLastSyncDate()
-        }
+        Task {await refreshLastSyncDate()}
+
+        scheduler.start()
     }
 
     private static func makeExportsFolder() -> URL {
